@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>2026 農曆新年 蝴蝶蘭盆栽打樣預購</title>
+
+  <!-- 字型 & 樣式 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- jsPDF：前端產 PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-/8aE2F1C8U2sFxlKC3qyV+U+KRU4P0pgg8B+2vY9a7gQeUj6C+VvNvQuC7WYkUf9wzGyF/F7fs/3nq+3u2R0w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+</head>
+<body>
+  <!-- LINE / IG / FB 內嵌瀏覽器提示 -->
+  <div id="inapp-warning" class="inapp-warning hidden">
+    您目前使用的是 App 內建瀏覽器，建議點右上角「在瀏覽器開啟」以獲得最佳體驗。
+  </div>
+
+  <main class="page">
+    <header class="page-header">
+      <h1>2026 農曆新年 蝴蝶蘭盆栽打樣預購</h1>
+      <section class="intro-box">
+        <p>預計在 12 月底會先運送一批到港，供打樣、拍照與展示給客人預購。</p>
+        <p>福盛會會先統計大家的色號需求，盡力讓大家以最低預算完成打樣。</p>
+        <p>有問題可 Whatsapp 聯絡 Lisa。</p>
+      </section>
+    </header>
+
+    <!-- Step 1 商品 -->
+    <section class="section">
+      <h2>Step 1：選擇品項與數量</h2>
+      <p class="section-sub">不需要的品項保持 0 即可。</p>
+      <div id="products-container" class="products-container">
+        <div class="loading">商品載入中…</div>
+      </div>
+    </section>
+
+    <!-- Step 2 訂購資料 -->
+    <section class="section">
+      <h2>Step 2：填寫訂購資料</h2>
+
+      <form id="order-form" class="order-form" onsubmit="return false;">
+        <div class="form-grid">
+          <div class="field">
+            <label for="customerName">訂購者姓名<span class="required">*</span></label>
+            <input id="customerName" type="text" autocomplete="name" />
+          </div>
+          <div class="field">
+            <label for="customerWhatsapp">Whatsapp 號碼<span class="required">*</span></label>
+            <input id="customerWhatsapp" type="tel" autocomplete="tel" />
+          </div>
+          <div class="field">
+            <label for="shopName">花店名稱</label>
+            <input id="shopName" type="text" />
+          </div>
+          <div class="field">
+            <label for="shopInstagram">花店 Instagram ID</label>
+            <input id="shopInstagram" type="text" />
+          </div>
+        </div>
+      </form>
+
+      <div id="message" class="message"></div>
+      <div id="pdf-link" class="pdf-link"></div>
+    </section>
+  </main>
+
+  <!-- 底部固定：小計 + 送出 -->
+  <div class="sticky-bar">
+    <div class="sticky-inner">
+      <div class="sticky-total">
+        小計：<span id="totalAmount">$0</span>
+        <span id="itemCount" class="item-count">(0 項)</span>
+      </div>
+      <button id="submitBtn" class="primary-btn">送出預購單</button>
+    </div>
+    <div id="cartPreview" class="cart-preview">尚未選購任何品項。</div>
+  </div>
+
+  <!-- 圖片 Lightbox -->
+  <div id="lightbox" class="lightbox hidden">
+    <div class="lightbox-backdrop" data-role="close-lightbox"></div>
+    <img id="lightboxImg" class="lightbox-img" alt="預覽圖片" />
+  </div>
+
+  <script>
+    // 你的 Google Apps Script Web App URL
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwPCztMKq7Kz294a7EQeyNn-gFqwBPCwofrIFTf8wFaipNek-blRoCqQOmuBC1Zl-YiyQ/exec";
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>
