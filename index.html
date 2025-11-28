@@ -1,40 +1,113 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>2026 農曆新年 蝴蝶蘭盆栽打樣預購</title>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>2026 農曆新年 蝴蝶蘭盆栽打樣預購</title>
 
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
+    <!-- Brand Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
 
-  <main class="page">
-    <header class="page-header">
-      <h1>2026 農曆新年 蝴蝶蘭盆栽打樣預購</h1>
+    <!-- Your style.css -->
+    <link rel="stylesheet" href="style.css" />
 
-      <!-- Enhanced intro box -->
-      <section class="intro-box highlight-box">
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+      const GAS_API_URL =
+        "https://script.google.com/macros/s/AKfycbwPCztMKq7Kz294a7EQeyNn-gFqwBPCwofrIFTf8wFaipNek-blRoCqQOmuBC1Zl-YiyQ/exec";
+    </script>
+  </head>
+
+  <body>
+    <!-- ========== In-App Browser Warning (Line / IG) ========== -->
+    <div id="inapp-warning" class="hidden" 
+      style="
+        background:#000; 
+        color:#fff; 
+        padding:14px; 
+        text-align:center;
+        font-size:15px;
+      ">
+      ⚠️ 請點右上角「⋯」 → 以外部瀏覽器開啟，否則功能可能無法正常使用。
+    </div>
+
+    <div class="page">
+      <header class="page-header">
+        <h1>2026 農曆新年 蝴蝶蘭盆栽打樣預購</h1>
+      </header>
+
+      <!-- ======= Intro Highlight Box ======= -->
+      <div class="highlight-box">
         <div class="icon">🌸</div>
         <div class="content">
-          <p>預計在 12 月底會先運送一批到港，供打樣、拍照與展示給客人預購。</p>
-          <p>福盛會會先統計大家的色號需求，盡力讓大家以最低預算完成打樣。</p>
-          <p><strong>價格已含到香港的空運費用，到貨後需至 Day6 自取（地址：新蒲崗七寶街三號振發工廠大廈6樓B2室），或由 Simon 協助請 Lalamove 運送（需自行付費）。</strong></p>
-          <p>有問題可 Whatsapp 聯絡 Lisa。</p>
+          <p>
+            預計在 12 月底會先運送一批到港，供打樣、拍照與展示給客人預購；
+            福盛會會統計大家色號需求，盡力讓大家以最低預算完成打樣。
+          </p>
+          <p>
+            <strong>價格已含到香港的空運費用。</strong><br />
+            到貨後需至 Day6 自取（地址：新蒲崗七寶街三號振發工廠大廈6樓B2室），
+            或由 Simon 協助以 Lalamove 運送（需自行付費）。
+          </p>
+          <p>如有問題可 Whatsapp 聯絡 Lisa。</p>
         </div>
+      </div>
+
+      <!-- ======= 商品區 ======= -->
+      <section class="section">
+        <h2>Step 1：選擇商品與數量</h2>
+        <p>不需要的品項保持 0 即可。</p>
+
+        <!-- 🔥 重要修正：app.js 需要的是這個 ID -->
+        <div id="product-list"></div>
       </section>
 
-    </header>
+      <!-- ======= 訂購資料 ======= -->
+      <section class="section">
+        <h2>Step 2：填寫訂購資料</h2>
 
-   <section class="section">
-  <h2>Step 1：選擇商品與數量</h2>
-  <p>不需要的品項保持 0 即可。</p>
+        <label>姓名 *</label>
+        <input id="customerName" type="text" />
 
-  <!-- 修正：重要！ID 必須是 product-list 才能渲染 -->
-  <div id="product-list"></div>
-</section>
+        <label>Whatsapp *</label>
+        <input id="customerWhatsapp" type="text" />
 
-  </main>
+        <label>花店名稱</label>
+        <input id="shopName" type="text" />
 
-</body>
+        <label>花店 IG</label>
+        <input id="shopInstagram" type="text" />
+      </section>
+
+      <!-- ======= 固定購物車區 ======= -->
+      <div id="cartBar" class="cart-bar">
+        <div class="cart-left">
+          <div id="cartPreview">尚未選購任何品項。</div>
+          <div id="itemCount">(0 項)</div>
+        </div>
+
+        <div class="cart-right">
+          <div id="totalAmount">$0</div>
+          <button id="submitBtn">送出預購單</button>
+        </div>
+      </div>
+
+      <p id="message"></p>
+      <div id="pdf-link"></div>
+    </div>
+
+    <!-- ======= Lightbox ======= -->
+    <div id="lightbox" class="lightbox hidden">
+      <img id="lightboxImg" src="" />
+      <div data-role="close-lightbox" class="close-btn">✕</div>
+    </div>
+
+    <!-- ======= 主程式 ======= -->
+    <script src="app.js"></script>
+  </body>
 </html>
