@@ -249,7 +249,7 @@ input {
 
 /* 訊息 */
 .message {
-  padding: 0 16px 12px;
+  padding: 8px 16px 4px;
   font-size: 0.9rem;
   color: #c0392b;
 }

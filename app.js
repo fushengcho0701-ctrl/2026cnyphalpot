@@ -1,8 +1,4 @@
-// === 設定：Google Apps Script Web App URL ===
-const GAS_API_URL =
-  "https://script.google.com/macros/s/AKfycbwuU4bd8LEeuulW2Rx9Eqn6g89N4wxDqlzdwQ1J2DJmg8lBUHbnWAEfJx9VUvt-qeprcQ/exec";
-
-// === In-app Browser 偵測（LINE / IG） ===
+// === In-app Browser 偵測（LINE / IG / FB） ===
 function detectInAppBrowser() {
   const ua = navigator.userAgent || navigator.vendor || window.opera;
   if (/Line/i.test(ua) || /Instagram/i.test(ua) || /FBAN|FBAV/i.test(ua)) {
@@ -11,18 +7,18 @@ function detectInAppBrowser() {
   }
 }
 
-// === 讀取商品 ===
+// === 載入商品（GET 到 Google Apps Script） ===
 async function loadProducts() {
   const container = document.getElementById("products-container");
   if (!container) return;
 
   try {
-    const res = await fetch(GAS_API_URL, { method: "GET" });
+    const res = await fetch(PRODUCTS_API_URL, { method: "GET" });
     if (!res.ok) throw new Error("HTTP " + res.status);
     let data = await res.json();
 
-    // 允許 data 是 {products:[...]} 或直接 [...]
-    if (data && data.products) {
+    // 支援 {products:[...]} 或直接 [...]
+    if (data && Array.isArray(data.products)) {
       data = data.products;
     }
 
@@ -44,7 +40,6 @@ function renderProducts(products) {
   const container = document.getElementById("products-container");
   container.innerHTML = "";
 
-  // 依 series 或 name 分成 ART / Fantasia / 其他
   const groups = {
     ART: [],
     FANTASIA: [],
@@ -77,7 +72,7 @@ function renderProducts(products) {
       container.appendChild(sub);
     }
 
-    list.forEach((p, idx) => {
+    list.forEach((p) => {
       const priceNum = parsePrice(p.price);
       const priceDisplay = "HKD$" + priceNum;
 
@@ -120,9 +115,11 @@ function parsePrice(raw) {
 
 // === 數量 & 購物車 ===
 function bindQtyEvents() {
-  document.querySelectorAll(".product-qty input[type='number']").forEach((el) => {
-    el.addEventListener("input", updateCartSummary);
-  });
+  document
+    .querySelectorAll(".product-qty input[type='number']")
+    .forEach((el) => {
+      el.addEventListener("input", updateCartSummary);
+    });
 }
 
 function updateCartSummary() {
@@ -160,15 +157,13 @@ function bindImageLightbox() {
   const lightbox = document.getElementById("lightbox");
   const lightboxImg = document.getElementById("lightboxImg");
 
-  document
-    .querySelectorAll(".product-img-wrap")
-    .forEach((wrap) =>
-      wrap.addEventListener("click", () => {
-        const src = wrap.dataset.fullsrc || wrap.querySelector("img").src;
-        lightboxImg.src = src;
-        lightbox.classList.add("show");
-      })
-    );
+  document.querySelectorAll(".product-img-wrap").forEach((wrap) =>
+    wrap.addEventListener("click", () => {
+      const src = wrap.dataset.fullsrc || wrap.querySelector("img").src;
+      lightboxImg.src = src;
+      lightbox.classList.add("show");
+    })
+  );
 
   lightbox.querySelectorAll("[data-role='close-lightbox']").forEach((btn) =>
     btn.addEventListener("click", () => {
@@ -178,19 +173,21 @@ function bindImageLightbox() {
   );
 }
 
-// === 送出訂單 → 產生 PDF（前端） ===
+// === 送出訂單：POST 到 GAS + 產 PDF ===
 async function handleSubmit() {
+  const msgEl = document.getElementById("message");
+  msgEl.textContent = "";
+
   const name = document.getElementById("customerName").value.trim();
   const whatsapp = document.getElementById("customerWhatsapp").value.trim();
   const shop = document.getElementById("shopName").value.trim();
   const ig = document.getElementById("shopInstagram").value.trim();
 
   if (!name || !whatsapp) {
-    alert("請填寫姓名與 Whatsapp 號碼。");
+    msgEl.textContent = "請填寫「訂購者姓名」與「Whatsapp 號碼」。";
     return;
   }
 
-  // 收集購物車項目
   const inputs = document.querySelectorAll(
     ".product-qty input[type='number']"
   );
@@ -208,58 +205,100 @@ async function handleSubmit() {
   });
 
   if (items.length === 0) {
-    alert("請至少選擇一個品項。");
+    msgEl.textContent = "請至少選擇一個品項。";
     return;
   }
 
-  // 產生 PDF
+  const payload = {
+    name,
+    whatsapp,
+    shop,
+    instagram: ig,
+    items,
+    total,
+  };
+
   try {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+    msgEl.textContent = "訂單送出中，請稍候⋯";
 
-    let y = 14;
-    doc.setFontSize(16);
-    doc.text("2026 農曆新年 蝴蝶蘭盆栽打樣預購單", 14, y);
-    y += 8;
-
-    doc.setFontSize(11);
-    doc.text(`姓名：${name}`, 14, y);
-    y += 6;
-    doc.text(`Whatsapp：${whatsapp}`, 14, y);
-    y += 6;
-    doc.text(`花店名稱：${shop || "-"}`, 14, y);
-    y += 6;
-    doc.text(`花店 IG：${ig || "-"}`, 14, y);
-    y += 10;
-
-    doc.setFontSize(12);
-    doc.text("訂購內容：", 14, y);
-    y += 6;
-
-    items.forEach((it) => {
-      const line = `${it.name}  x ${it.qty}  @ HKD$${it.price}  = HKD$${it.price *
-        it.qty}`;
-      doc.text(line, 18, y);
-      y += 6;
-      if (y > 270) {
-        doc.addPage();
-        y = 14;
-      }
+    // 先送到 Google Sheet
+    const res = await fetch(ORDER_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
 
-    y += 4;
-    doc.setFontSize(13);
-    doc.text(`總計：HKD$${total}`, 18, y);
+    const result = await res.json();
+    if (!result || result.success !== true) {
+      throw new Error(result && result.error ? result.error : "未知錯誤");
+    }
 
-    const fileName = `orchid-preorder-${Date.now()}.pdf`;
-    doc.save(fileName);
+    // 再產 PDF 提供客人下載
+    await generatePdf(payload);
 
-    document.getElementById("message").textContent =
-      "PDF 訂購單已產生並下載，若有問題可再聯絡 Lisa。";
+    msgEl.textContent = "已成功送出預購單，PDF 也已下載。感謝您的訂購！";
+    clearSelections();
   } catch (e) {
-    console.error(e);
-    alert("PDF 產生失敗，但訂購內容已在頁面中顯示。");
+    console.error("送出訂單失敗", e);
+    msgEl.textContent = "送出失敗，請稍後再試或聯絡福盛協助。";
   }
+}
+
+// 產生 PDF
+async function generatePdf(order) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  let y = 14;
+  doc.setFontSize(16);
+  doc.text("2026 農曆新年 蝴蝶蘭盆栽打樣預購單", 14, y);
+  y += 8;
+
+  doc.setFontSize(11);
+  doc.text(`姓名：${order.name}`, 14, y);
+  y += 6;
+  doc.text(`Whatsapp：${order.whatsapp}`, 14, y);
+  y += 6;
+  doc.text(`花店名稱：${order.shop || "-"}`, 14, y);
+  y += 6;
+  doc.text(`花店 IG：${order.instagram || "-"}`, 14, y);
+  y += 10;
+
+  doc.setFontSize(12);
+  doc.text("訂購內容：", 14, y);
+  y += 6;
+
+  order.items.forEach((it) => {
+    const line = `${it.name}  x ${it.qty}  @ HKD$${it.price}  = HKD$${it.price *
+      it.qty}`;
+    doc.text(line, 18, y);
+    y += 6;
+    if (y > 270) {
+      doc.addPage();
+      y = 14;
+    }
+  });
+
+  y += 4;
+  doc.setFontSize(13);
+  doc.text(`總計：HKD$${order.total}`, 18, y);
+
+  const fileName = `orchid-preorder-${Date.now()}.pdf`;
+  doc.save(fileName);
+}
+
+// 清空選擇與表單
+function clearSelections() {
+  document
+    .querySelectorAll(".product-qty input[type='number']")
+    .forEach((input) => (input.value = "0"));
+  updateCartSummary();
+
+  // 可選：清空表單
+  // document.getElementById("customerName").value = "";
+  // document.getElementById("customerWhatsapp").value = "";
+  // document.getElementById("shopName").value = "";
+  // document.getElementById("shopInstagram").value = "";
 }
 
 // === 小工具 ===
