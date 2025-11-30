@@ -1,100 +1,14 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>2026 農曆新年 蝴蝶蘭盆栽打樣預購</title>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>商品頁面</title>
+</head>
+<body>
+<h2 class="section-title">ART 系列</h2>
 
-    <!-- 字型 -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet" />
+<h2 class="section-title">Fantasia 系列</h2>
 
-    <!-- 自訂樣式 -->
-    <link rel="stylesheet" href="style.css" />
-
-    <!-- jsPDF：前端產生 PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-    <script>
-      // 供 app.js 使用的 API URL
-      const PRODUCTS_API_URL = "https://script.google.com/macros/s/AKfycbwuU4bd8LEeuulW2Rx9Eqn6g89N4wxDqlzdwQ1J2DJmg8lBUHbnWAEfJx9VUvt-qeprcQ/exec";
-      const ORDER_API_URL = "https://script.google.com/macros/s/AKfycbzjF-KV_gsvLp8qxlRa1wN7Nc1cUCtQv4O0_R_4crE37qMXuQYERC5AGZt-rmtzQT2LzQ/exec";
-    </script>
-  </head>
-
-  <body>
-    <!-- In-app Browser 提示（LINE / IG） -->
-    <div id="inapp-warning" class="inapp-warning hidden">
-      ⚠️ 建議點右上角「⋯」→「在外部瀏覽器開啟」，才能正常填寫與下載訂購單。
-    </div>
-
-    <main class="page">
-      <header class="page-header">
-        <h1>2026 農曆新年 蝴蝶蘭盆栽打樣預購</h1>
-      </header>
-
-      <!-- Intro 強調框 -->
-      <section class="highlight-box">
-        <div class="icon">🌸</div>
-        <div class="content">
-          <p>預計在 12 月底會先運送一批到港，供打樣、拍照與展示給客人預購；福盛會會統計大家色號需求，盡力讓大家以最低預算完成打樣。</p>
-          <p><strong>價格已含到香港的空運費用。</strong><br />到貨後需至 Day6 自取（地址：新蒲崗七寶街三號振發工廠大廈 6 樓 B2 室），或由 Simon 協助請 Lalamove 運送（需自行付費）。</p>
-          <p>如有問題可 Whatsapp 聯絡 Lisa。</p>
-        </div>
-      </section>
-
-      <!-- Step 1 商品區 -->
-      <section class="section">
-        <h2>Step 1：選擇商品與數量</h2>
-        <p class="section-sub">不需要的品項保持 0 即可。</p>
-
-        <div id="products-container" class="products-container">
-          <div class="loading">商品載入中⋯</div>
-        </div>
-      </section>
-
-      <!-- Step 2 訂購資料 -->
-      <section class="section">
-        <h2>Step 2：填寫訂購資料</h2>
-
-        <label>訂購者姓名 *</label>
-        <input id="customerName" type="text" />
-
-        <label>Whatsapp 號碼 *</label>
-        <input id="customerWhatsapp" type="text" />
-
-        <label>花店名稱</label>
-        <input id="shopName" type="text" />
-
-        <label>花店 Instagram ID</label>
-        <input id="shopInstagram" type="text" />
-      </section>
-    </main>
-
-    <!-- 固定底部購物車 -->
-    <div id="cartBar" class="cart-bar">
-      <div class="cart-left">
-        <div id="cartPreview" class="cart-preview">尚未選購任何品項。</div>
-        <div id="itemCount" class="cart-count">(0 項)</div>
-      </div>
-      <div class="cart-right">
-        <div id="totalAmount" class="cart-total">HKD$0</div>
-        <button id="submitBtn" class="cart-submit-btn">送出預購單</button>
-      </div>
-    </div>
-
-    <p id="message" class="message"></p>
-    <div id="pdf-link" class="pdf-link"></div>
-
-    <!-- 圖片放大 Lightbox -->
-    <div id="lightbox" class="lightbox hidden">
-      <div class="lightbox-backdrop" data-role="close-lightbox"></div>
-      <div class="lightbox-inner">
-        <img id="lightboxImg" src="" alt="大圖預覽" />
-        <button class="lightbox-close" data-role="close-lightbox">✕</button>
-      </div>
-    </div>
-
-    <!-- 主程式 -->
-    <script src="app.js"></script>
-  </body>
+<!-- 其他內容請自行加入 -->
+</body>
 </html>
