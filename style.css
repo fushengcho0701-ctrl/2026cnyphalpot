@@ -1,1 +1,6 @@
-/* placeholder */
+body {font-family: Arial; margin:0; padding:0;}
+.intro-box {background:#f3fbdc; padding:20px; border-left:6px solid #8fbc26;}
+.section-title {margin:20px 0 10px;}
+.product-grid {display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px;}
+.product-card {border:1px solid #ddd; padding:10px; border-radius:6px; text-align:center;}
+#cart-bar {position:fixed; bottom:0; left:0; right:0; background:#fff; padding:10px; border-top:2px solid #8fbc26;}
