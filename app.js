@@ -1,166 +1,263 @@
 /*****************************************
- * 設定：你的兩個 GAS 網址
+ * 設定：你的 GAS API URL
  *****************************************/
 const PRODUCT_API = "https://script.google.com/macros/s/AKfycbwuU4bd8LEeuulW2Rx9Eqn6g89N4wxDqlzdwQ1J2DJmg8lBUHbnWAEfJx9VUvt-qeprcQ/exec?action=products";
 const ORDER_API   = "https://script.google.com/macros/s/AKfycbzjF-KV_gsvLp8qxlRa1wN7Nc1cUCtQv4O0_R_4crE37qMXuQYERC5AGZt-rmtzQT2LzQ/exec?action=order";
 
 /*****************************************
- * 變數
+ * 全域狀態
  *****************************************/
 let allProducts = [];
-let cart = [];
 
 /*****************************************
- * 1. 初始化：讀商品
+ * In-app Browser 偵測（LINE/IG）
+ *****************************************/
+function detectInAppBrowser() {
+  const ua = navigator.userAgent || navigator.vendor || window.opera;
+  if (/Line/i.test(ua) || /Instagram/i.test(ua) || /FBAN|FBAV/i.test(ua)) {
+    document.getElementById("inapp-warning").classList.remove("hidden");
+  }
+}
+
+/*****************************************
+ * 讀取商品
  *****************************************/
 async function loadProducts() {
-    try {
-        const res = await fetch(PRODUCT_API);
-        const data = await res.json();
+  const container = document.getElementById("products-container");
+  try {
+    const res = await fetch(PRODUCT_API);
+    const data = await res.json();
 
-        if (data.status !== "ok") {
-            alert("商品載入失敗");
-            return;
-        }
-
-        allProducts = data.products || [];
-        renderProducts();
-    } catch (err) {
-        alert("商品載入失敗");
+    if (!data || data.status !== "ok") {
+      throw new Error("商品 API 格式不符");
     }
+
+    allProducts = data.products || [];
+    renderProducts();
+  } catch (err) {
+    console.error(err);
+    container.innerHTML = `<div class="loading">商品載入失敗，請稍後再試。</div>`;
+  }
 }
 
 /*****************************************
- * 2. Render 商品（維持你舊版 UI）
+ * Render 商品
  *****************************************/
 function renderProducts() {
-    const artContainer = document.getElementById("art-list");
-    const fanContainer = document.getElementById("fan-list");
+  const container = document.getElementById("products-container");
+  container.innerHTML = "";
 
-    artContainer.innerHTML = "";
-    fanContainer.innerHTML = "";
+  const groups = {
+    ART: [],
+    FANTASIA: [],
+    OTHER: []
+  };
 
-    allProducts.forEach(p => {
-        const box = document.createElement("div");
-        box.className = "product-card";
-        box.innerHTML = `
-            <div class="img-box">
-                <img src="${p.imageUrl}" onclick="showImage('${p.imageUrl}')">
-            </div>
-            <div class="p-name">${p.name}</div>
-            <div class="p-price">HKD$ ${p.price}</div>
-            <button onclick="addToCart('${p.name}', ${p.price})">加入</button>
-        `;
+  allProducts.forEach(p => {
+    const name = (p.name || "").toLowerCase();
+    const series = (p.series || "").toLowerCase();
 
-        if (p.series.includes("ART")) artContainer.appendChild(box);
-        else fanContainer.appendChild(box);
+    if (series.includes("art") || name.includes("art")) groups.ART.push(p);
+    else if (series.includes("fantasia") || name.includes("fantasia")) groups.FANTASIA.push(p);
+    else groups.OTHER.push(p);
+  });
+
+  function renderGroup(title, list) {
+    if (!list.length) return;
+
+    const h = document.createElement("div");
+    h.className = "product-group-title";
+    h.textContent = title;
+    container.appendChild(h);
+
+    list.forEach(product => {
+      const price = parsePrice(product.price ?? product.rawPrice);
+      const card = document.createElement("div");
+      card.className = "product-card";
+
+      card.innerHTML = `
+        <div class="product-img-wrap" data-fullsrc="${product.imageUrl}">
+          <img src="${product.imageUrl}" alt="${product.name}" />
+        </div>
+
+        <div class="product-name">${product.name}</div>
+        <div class="product-price">HKD$${price}</div>
+
+        <div class="product-qty">
+          <span>數量：</span>
+          <input
+            type="number"
+            min="0"
+            value="0"
+            data-name="${product.name}"
+            data-price="${price}"
+          />
+        </div>
+      `;
+
+      container.appendChild(card);
     });
+  }
+
+  renderGroup("ART 系列", groups.ART);
+  renderGroup("Fantasia 系列", groups.FANTASIA);
+  renderGroup("其他系列", groups.OTHER);
+
+  bindQtyEvents();
+  bindImageLightbox();
 }
 
 /*****************************************
- * 3. 放大圖片
+ * 價格解析（處理 HKD$XXX 或空白）
  *****************************************/
-function showImage(url) {
-    const modal = document.getElementById("img-modal");
-    const modalImg = document.getElementById("modal-img");
-    modal.style.display = "block";
-    modalImg.src = url;
-}
-
-function closeImage() {
-    document.getElementById("img-modal").style.display = "none";
+function parsePrice(raw) {
+  if (!raw) return 0;
+  const num = parseFloat(String(raw).replace(/[^0-9.]/g, ""));
+  return isNaN(num) ? 0 : Math.round(num);
 }
 
 /*****************************************
- * 4. 購物車
+ * 綁定數量輸入
  *****************************************/
-function addToCart(name, price) {
-    const exist = cart.find(c => c.name === name);
-    if (exist) exist.qty++;
-    else cart.push({ name, price, qty: 1 });
-
-    updateCartUI();
+function bindQtyEvents() {
+  document.querySelectorAll(".product-qty input").forEach(input => {
+    input.addEventListener("input", updateCartSummary);
+  });
 }
 
-function updateCartUI() {
-    const cartList = document.getElementById("cart-items");
-    const cartTotal = document.getElementById("cart-total");
+/*****************************************
+ * 更新底部購物車顯示
+ *****************************************/
+function updateCartSummary() {
+  const inputs = document.querySelectorAll(".product-qty input");
+  const preview = [];
+  let total = 0;
+  let count = 0;
 
-    cartList.innerHTML = "";
-    let total = 0;
+  inputs.forEach(input => {
+    const qty = parseInt(input.value || "0");
+    if (qty > 0) {
+      const name = input.dataset.name;
+      const price = parseInt(input.dataset.price);
+      preview.push(`${name} x ${qty}`);
+      total += price * qty;
+      count++;
+    }
+  });
 
-    cart.forEach(item => {
-        const li = document.createElement("div");
-        li.className = "cart-row";
-        const sub = item.price * item.qty;
-        total += sub;
-        li.innerHTML = `${item.name} x ${item.qty} = HKD$${sub}`;
-        cartList.appendChild(li);
+  document.getElementById("cartPreview").textContent =
+    preview.length ? preview.join("、") : "尚未選購任何品項";
+
+  document.getElementById("itemCount").textContent = `(${count} 項)`;
+  document.getElementById("totalAmount").textContent = `HKD$${total}`;
+}
+
+/*****************************************
+ * Lightbox（放大圖片）
+ *****************************************/
+function bindImageLightbox() {
+  const lb = document.getElementById("lightbox");
+  const lbImg = document.getElementById("lightboxImg");
+
+  document.querySelectorAll(".product-img-wrap").forEach(wrap => {
+    wrap.addEventListener("click", () => {
+      lbImg.src = wrap.dataset.fullsrc;
+      lb.classList.add("show");
+    });
+  });
+
+  document.querySelectorAll("[data-role='close-lightbox']").forEach(btn => {
+    btn.addEventListener("click", () => {
+      lb.classList.remove("show");
+      lbImg.src = "";
+    });
+  });
+}
+
+/*****************************************
+ * 送出訂單（不下載 PDF）
+ *****************************************/
+async function handleSubmit() {
+  const msg = document.getElementById("message");
+  msg.textContent = "";
+
+  const name = document.getElementById("customerName").value.trim();
+  const wa = document.getElementById("customerWhatsapp").value.trim();
+  const shop = document.getElementById("shopName").value.trim();
+  const ig = document.getElementById("shopInstagram").value.trim();
+
+  if (!name || !wa) {
+    msg.textContent = "請填寫「姓名」與「Whatsapp」。";
+    return;
+  }
+
+  const inputs = document.querySelectorAll(".product-qty input");
+  const items = [];
+  let total = 0;
+
+  inputs.forEach(input => {
+    const qty = parseInt(input.value || "0");
+    if (qty > 0) {
+      items.push({
+        name: input.dataset.name,
+        qty,
+        price: parseInt(input.dataset.price)
+      });
+      total += qty * parseInt(input.dataset.price);
+    }
+  });
+
+  if (!items.length) {
+    msg.textContent = "請至少選擇 1 個品項。";
+    return;
+  }
+
+  // ▲ PDF 已停用，因此 pdfBase64 填空字串
+  const payload = {
+    customerName: name,
+    customerWhatsapp: wa,
+    shopName: shop,
+    shopInstagram: ig,
+    items,
+    total,
+    pdfBase64: ""
+  };
+
+  msg.textContent = "訂單送出中⋯";
+
+  try {
+    const res = await fetch(ORDER_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: "payload=" + encodeURIComponent(JSON.stringify(payload))
     });
 
-    cartTotal.innerText = total;
+    const data = await res.json();
+
+    if (data.status === "ok") {
+      msg.textContent = "訂單已成功送出！感謝您的預購 🙏";
+      clearSelections();
+    } else {
+      msg.textContent = "送出失敗：" + (data.message || "未知錯誤");
+    }
+  } catch (err) {
+    msg.textContent = "送出訂單失敗：" + err;
+  }
 }
 
 /*****************************************
- * 5. 提交訂單（✔ 不下載 PDF ✔ 修正 API 回應格式）
+ * 清除選項
  *****************************************/
-async function submitOrder() {
-    if (!cart.length) {
-        alert("請選擇商品");
-        return;
-    }
-
-    const name = document.getElementById("customer-name").value.trim();
-    const wa   = document.getElementById("customer-wa").value.trim();
-    const shop = document.getElementById("customer-shop").value.trim();
-    const ig   = document.getElementById("customer-ig").value.trim();
-
-    if (!name || !wa) {
-        alert("姓名與 Whatsapp 必填");
-        return;
-    }
-
-    const order = {
-        customerName: name,
-        customerWhatsapp: wa,
-        shopName: shop,
-        shopInstagram: ig,
-        items: cart.map(c => ({
-            name: c.name,
-            qty: c.qty,
-            price: c.price
-        })),
-        total: cart.reduce((sum, i) => sum + i.price * i.qty, 0),
-
-        // ❌ 不再下載 PDF
-        // ✔ 但仍把 Base64 給 GAS（如果你保留 PDF 功能的話）
-        pdfBase64: ""
-    };
-
-    try {
-        const res = await fetch(ORDER_API, {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: "payload=" + encodeURIComponent(JSON.stringify(order))
-        });
-
-        const data = await res.json();
-
-        // *** ✔ 這裡是關鍵：只要 GAS 回傳 status=ok 就算成功 ***
-        if (data.status === "ok") {
-            alert("送出成功！");
-            cart = [];
-            updateCartUI();
-        } else {
-            alert("送出失敗：" + JSON.stringify(data));
-        }
-        
-    } catch (err) {
-        alert("送出訂單失敗：" + err);
-    }
+function clearSelections() {
+  document.querySelectorAll(".product-qty input").forEach(i => (i.value = "0"));
+  updateCartSummary();
 }
 
 /*****************************************
  * 啟動
  *****************************************/
-window.onload = loadProducts;
+document.addEventListener("DOMContentLoaded", () => {
+  detectInAppBrowser();
+  loadProducts();
+  document.getElementById("submitBtn").addEventListener("click", handleSubmit);
+});
