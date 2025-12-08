@@ -1,123 +1,115 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>2026 蝴蝶蘭打樣預購</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2026 蝴蝶蘭打樣預購</title>
 
-    <!-- 字體 -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap"
-      rel="stylesheet"
-    />
+  <!-- 字體 -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet" />
 
-    <!-- 主樣式 -->
-    <link rel="stylesheet" href="style.css" />
+  <!-- 主樣式 -->
+  <link rel="stylesheet" href="style.css" />
 
-    <!-- jsPDF（前端 PDF 產生器；你目前已關閉下載，只保留可寄送用） -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- jsPDF（僅保留，如未來需要 PDF，可再開啟） -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-    <!-- GAS API 端點設定 -->
-    <script>
-      const PRODUCTS_API_URL =
-        "https://script.google.com/macros/s/AKfycbwuU4bd8LEeuulW2Rx9Eqn6g89N4wxDqlzdwQ1J2DJmg8lBUHbnWAEfJx9VUvt-qeprcQ/exec?action=products";
+  <!-- 🚀 GAS API 端點設定（最新） -->
+  <script>
+    const BASE_API = "https://script.google.com/macros/s/AKfycbzmCmNRKkT7gN_ZPTgrSJxZ8v9YODl_F4cYqN-Ox_vK-GMnF8OyAV5nwJwj-Wdkb7-5HQ/exec";
 
-      const ORDER_API_URL =
-        "https://script.google.com/macros/s/AKfycbzjF-KV_gsvLp8qxlRa1wN7Nc1cUCtQv4O0_R_4crE37qMXuQYERC5AGZt-rmtzQT2LzQ/exec?action=order";
-    </script>
-  </head>
+    const PRODUCTS_API_URL = BASE_API + "?action=products";
+    const ORDER_API_URL    = BASE_API + "?action=order";
+  </script>
+</head>
 
-  <body>
-    <!-- LINE / IG 等內建瀏覽器警告 -->
-    <div id="inapp-warning" class="inapp-warning hidden">
-      ⚠️ 建議在外部瀏覽器開啟以確保可正常送出訂單與檢視圖片
+<body>
+  <!-- In-app browser (LINE/IG/Facebook) 警告 -->
+  <div id="inapp-warning" class="inapp-warning hidden">
+    ⚠️ 建議在外部瀏覽器開啟以確保可正常送出訂單與檢視圖片
+  </div>
+
+  <main class="page">
+    
+    <!-- 標題 -->
+    <header class="page-header">
+      <h1>2026 蝴蝶蘭打樣預購</h1>
+    </header>
+
+    <!-- Intro 說明區塊 -->
+    <section class="highlight-box">
+      <div class="icon">🌸</div>
+      <div class="content">
+        <p>
+          預計在 12 月底會先運送一批到港，供打樣、拍照與展示給客人預購；
+          福盛會會統計大家色號需求，盡力讓大家以最低預算完成打樣。
+        </p>
+
+        <p>
+          <strong>價格已含到香港的空運費用。</strong><br />
+          到貨後需至 Day6 自取（地址：新蒲崗七寶街三號振發工廠大廈 6 樓 B2 室），
+          或由 Simon 協助請 Lalamove 運送（需自行付費）。
+        </p>
+
+        <p>如有問題可 Whatsapp 聯絡 Lisa。</p>
+      </div>
+    </section>
+
+    <!-- Step 1：商品清單 -->
+    <section class="section">
+      <h2>Step 1：選擇品項與數量</h2>
+      <p class="section-sub">如不需要某品項，請保持數量為 0。</p>
+
+      <div id="products-container" class="products-container">
+        <div class="loading">商品載入中⋯</div>
+      </div>
+    </section>
+
+    <!-- Step 2：填寫基本資料 -->
+    <section class="section">
+      <h2>Step 2：填寫訂購資料</h2>
+
+      <label>訂購者姓名 *</label>
+      <input id="customerName" type="text" />
+
+      <label>Whatsapp 號碼 *</label>
+      <input id="customerWhatsapp" type="text" />
+
+      <label>花店名稱</label>
+      <input id="shopName" type="text" />
+
+      <label>花店 Instagram ID</label>
+      <input id="shopInstagram" type="text" />
+    </section>
+
+  </main>
+
+  <!-- 固定底部購物車 -->
+  <div id="cartBar" class="cart-bar">
+    <div class="cart-left">
+      <div id="cartPreview" class="cart-preview">尚未選購任何品項</div>
+      <div id="itemCount" class="cart-count">(0 項)</div>
     </div>
 
-    <main class="page">
-      <!-- 頁首 -->
-      <header class="page-header">
-        <h1>2026 蝴蝶蘭打樣預購</h1>
-      </header>
-
-      <!-- Intro 說明區塊 -->
-      <section class="highlight-box">
-        <div class="icon">🌸</div>
-        <div class="content">
-          <p>
-            預計在 12 月底會先運送一批到港，供打樣、拍照與展示給客人預購；
-            福盛會會統計大家色號需求，盡力讓大家以最低預算完成打樣。
-          </p>
-
-          <p>
-            <strong>價格已含到香港的空運費用。</strong><br />
-            到貨後需至 Day6 自取（地址：新蒲崗七寶街三號振發工廠大廈 6 樓 B2 室），
-            或由 Simon 協助請 Lalamove 運送（需自行付費）。
-          </p>
-
-          <p>如有問題可 Whatsapp 聯絡 Lisa。</p>
-        </div>
-      </section>
-
-      <!-- Step 1：商品選擇 -->
-      <section class="section">
-        <h2>Step 1：選擇品項與數量</h2>
-        <p class="section-sub">如不需要某品項，請保持數量為 0。</p>
-
-        <!-- 商品自動載入區 -->
-        <div id="products-container" class="products-container">
-          <div class="loading">商品載入中⋯</div>
-        </div>
-      </section>
-
-      <!-- Step 2：填寫購買者資料 -->
-      <section class="section">
-        <h2>Step 2：填寫訂購資料</h2>
-
-        <label>訂購者姓名 *</label>
-        <input id="customerName" type="text" />
-
-        <label>Whatsapp 號碼 *</label>
-        <input id="customerWhatsapp" type="text" />
-
-        <label>花店名稱</label>
-        <input id="shopName" type="text" />
-
-        <label>花店 Instagram ID</label>
-        <input id="shopInstagram" type="text" />
-      </section>
-    </main>
-
-    <!-- 固定底部購物車列 -->
-    <div id="cartBar" class="cart-bar">
-      <div class="cart-left">
-        <div id="cartPreview" class="cart-preview">
-          尚未選購任何品項
-        </div>
-        <div id="itemCount" class="cart-count">(0 項)</div>
-      </div>
-
-      <div class="cart-right">
-        <div id="totalAmount" class="cart-total">HKD$0</div>
-        <button id="submitBtn" class="cart-submit-btn">送出預購單</button>
-      </div>
+    <div class="cart-right">
+      <div id="totalAmount" class="cart-total">HKD$0</div>
+      <button id="submitBtn" class="cart-submit-btn">送出預購單</button>
     </div>
+  </div>
 
-    <!-- 訊息顯示 -->
-    <p id="message" class="message"></p>
+  <!-- 訊息顯示 -->
+  <p id="message" class="message"></p>
 
-    <!-- 圖片 Lightbox（放大預覽） -->
-    <div id="lightbox" class="lightbox hidden">
-      <div class="lightbox-backdrop" data-role="close-lightbox"></div>
-
-      <div class="lightbox-inner">
-        <img id="lightboxImg" src="" alt="大圖預覽" />
-        <button class="lightbox-close" data-role="close-lightbox">
-          ✕
-        </button>
-      </div>
+  <!-- Lightbox（圖片放大） -->
+  <div id="lightbox" class="lightbox hidden">
+    <div class="lightbox-backdrop" data-role="close-lightbox"></div>
+    <div class="lightbox-inner">
+      <img id="lightboxImg" src="" alt="大圖預覽" />
+      <button class="lightbox-close" data-role="close-lightbox">✕</button>
     </div>
+  </div>
 
-    <!-- 主 JS -->
-    <script src="app.js"></script>
-  </body>
+  <!-- 主 JS -->
+  <script src="app.js"></script>
+</body>
 </html>
