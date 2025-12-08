@@ -1,8 +1,11 @@
 /*****************************************
- * 設定：你的 GAS API URL
+ * GAS API 端點（你最新部署的那個）
  *****************************************/
-const PRODUCT_API = "https://script.google.com/macros/s/AKfycbwuU4bd8LEeuulW2Rx9Eqn6g89N4wxDqlzdwQ1J2DJmg8lBUHbnWAEfJx9VUvt-qeprcQ/exec?action=products";
-const ORDER_API   = "https://script.google.com/macros/s/AKfycbzjF-KV_gsvLp8qxlRa1wN7Nc1cUCtQv4O0_R_4crE37qMXuQYERC5AGZt-rmtzQT2LzQ/exec?action=order";
+const PRODUCT_API =
+  "https://script.google.com/macros/s/AKfycbzmCmNRKkT7gN_ZPTgrSJxZ8v9YODl_F4cYqN-Ox_vK-GMnF8OyAV5nwJwj-Wdkb7-5HQ/exec?action=products";
+
+const ORDER_API =
+  "https://script.google.com/macros/s/AKfycbzmCmNRKkT7gN_ZPTgrSJxZ8v9YODl_F4cYqN-Ox_vK-GMnF8OyAV5nwJwj-Wdkb7-5HQ/exec?action=order";
 
 /*****************************************
  * 全域狀態
@@ -10,7 +13,7 @@ const ORDER_API   = "https://script.google.com/macros/s/AKfycbzjF-KV_gsvLp8qxlRa
 let allProducts = [];
 
 /*****************************************
- * In-app Browser 偵測（LINE/IG）
+ * In-app Browser 偵測（LINE / IG）
  *****************************************/
 function detectInAppBrowser() {
   const ua = navigator.userAgent || navigator.vendor || window.opera;
@@ -20,28 +23,30 @@ function detectInAppBrowser() {
 }
 
 /*****************************************
- * 讀取商品
+ * 讀取商品清單
  *****************************************/
 async function loadProducts() {
   const container = document.getElementById("products-container");
+
   try {
     const res = await fetch(PRODUCT_API);
     const data = await res.json();
 
     if (!data || data.status !== "ok") {
-      throw new Error("商品 API 格式不符");
+      throw new Error("商品 API 回傳格式錯誤");
     }
 
     allProducts = data.products || [];
     renderProducts();
   } catch (err) {
-    console.error(err);
-    container.innerHTML = `<div class="loading">商品載入失敗，請稍後再試。</div>`;
+    console.error("載入商品錯誤", err);
+    container.innerHTML =
+      `<div class="loading">商品載入失敗，請稍後再試。</div>`;
   }
 }
 
 /*****************************************
- * Render 商品
+ * Render 商品卡片
  *****************************************/
 function renderProducts() {
   const container = document.getElementById("products-container");
@@ -65,10 +70,10 @@ function renderProducts() {
   function renderGroup(title, list) {
     if (!list.length) return;
 
-    const h = document.createElement("div");
-    h.className = "product-group-title";
-    h.textContent = title;
-    container.appendChild(h);
+    const titleEl = document.createElement("div");
+    titleEl.className = "product-group-title";
+    titleEl.textContent = title;
+    container.appendChild(titleEl);
 
     list.forEach(product => {
       const price = parsePrice(product.price ?? product.rawPrice);
@@ -108,7 +113,7 @@ function renderProducts() {
 }
 
 /*****************************************
- * 價格解析（處理 HKD$XXX 或空白）
+ * 處理價格格式（HKD$ 去字串）
  *****************************************/
 function parsePrice(raw) {
   if (!raw) return 0;
@@ -117,7 +122,7 @@ function parsePrice(raw) {
 }
 
 /*****************************************
- * 綁定數量輸入
+ * 綁定數量 input
  *****************************************/
 function bindQtyEvents() {
   document.querySelectorAll(".product-qty input").forEach(input => {
@@ -126,7 +131,7 @@ function bindQtyEvents() {
 }
 
 /*****************************************
- * 更新底部購物車顯示
+ * 更新底部購物車（數量、項目、金額）
  *****************************************/
 function updateCartSummary() {
   const inputs = document.querySelectorAll(".product-qty input");
@@ -140,7 +145,7 @@ function updateCartSummary() {
       const name = input.dataset.name;
       const price = parseInt(input.dataset.price);
       preview.push(`${name} x ${qty}`);
-      total += price * qty;
+      total += qty * price;
       count++;
     }
   });
@@ -149,6 +154,7 @@ function updateCartSummary() {
     preview.length ? preview.join("、") : "尚未選購任何品項";
 
   document.getElementById("itemCount").textContent = `(${count} 項)`;
+
   document.getElementById("totalAmount").textContent = `HKD$${total}`;
 }
 
@@ -175,7 +181,7 @@ function bindImageLightbox() {
 }
 
 /*****************************************
- * 送出訂單（不下載 PDF）
+ * 送出訂單（PDF 已取消）
  *****************************************/
 async function handleSubmit() {
   const msg = document.getElementById("message");
@@ -212,7 +218,6 @@ async function handleSubmit() {
     return;
   }
 
-  // ▲ PDF 已停用，因此 pdfBase64 填空字串
   const payload = {
     customerName: name,
     customerWhatsapp: wa,
@@ -220,7 +225,7 @@ async function handleSubmit() {
     shopInstagram: ig,
     items,
     total,
-    pdfBase64: ""
+    pdfBase64: "" // 已停用
   };
 
   msg.textContent = "訂單送出中⋯";
@@ -234,11 +239,13 @@ async function handleSubmit() {
 
     const data = await res.json();
 
-    if (data.status === "ok") {
+    // ★★★★★ 新增：修正「明明成功但前端顯示錯誤」的問題
+    if (data.status === "ok" || data.success === true) {
       msg.textContent = "訂單已成功送出！感謝您的預購 🙏";
       clearSelections();
     } else {
-      msg.textContent = "送出失敗：" + (data.message || "未知錯誤");
+      msg.textContent =
+        "送出失敗：" + (data.message || data.error || "未知錯誤");
     }
   } catch (err) {
     msg.textContent = "送出訂單失敗：" + err;
@@ -246,7 +253,7 @@ async function handleSubmit() {
 }
 
 /*****************************************
- * 清除選項
+ * 清空選擇
  *****************************************/
 function clearSelections() {
   document.querySelectorAll(".product-qty input").forEach(i => (i.value = "0"));
@@ -254,10 +261,12 @@ function clearSelections() {
 }
 
 /*****************************************
- * 啟動
+ * 啟動程式
  *****************************************/
 document.addEventListener("DOMContentLoaded", () => {
   detectInAppBrowser();
   loadProducts();
-  document.getElementById("submitBtn").addEventListener("click", handleSubmit);
+  document
+    .getElementById("submitBtn")
+    .addEventListener("click", handleSubmit);
 });
