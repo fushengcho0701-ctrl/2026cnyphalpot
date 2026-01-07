@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>2026 蝴蝶蘭大貨預購</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <script>
     const BASE_API = "https://script.google.com/macros/s/AKfycbzmCmNRKkT7gN_ZPTgrSJxZ8v9YODl_F4cYqN-Ox_vK-GMnF8OyAV5nwJwj-Wdkb7-5HQ/exec";
@@ -13,63 +13,56 @@
   </script>
 </head>
 <body>
-  <div id="inapp-warning" class="inapp-warning hidden">
-    ⚠️ 建議在外部瀏覽器開啟以確保可正常送出訂單與檢視圖片
-  </div>
+  <div id="inapp-warning" class="inapp-warning hidden">⚠️ 建議在外部瀏覽器開啟以確保正常運作</div>
 
   <main class="page">
-    <header class="page-header">
-      <h1>2026 蝴蝶蘭大貨預購</h1>
-    </header>
-
-    <section class="highlight-box">
-      <div class="icon">🌸</div>
-      <div class="content">
-        <p>預計在 12 月底會先運送一批到港，供打樣展示；福盛會統計需求，盡力協助打樣。</p>
-        <p><strong>價格已含到香港空運費。</strong> 到貨後請至新蒲崗自取，或協商 Lalamove 運送。</p>
-        <p>如有問題可 Whatsapp 聯絡 Lisa。</p>
-      </div>
-    </section>
-
-    <section class="section">
-      <h2>Step 1：選擇品項與數量</h2>
-      <div id="products-container" class="products-container">
-        <div class="loading">商品載入中⋯</div>
-      </div>
-    </section>
-
-    <section class="section">
-      <h2>Step 2：填寫訂購資料</h2>
+    <div id="main-content">
+      <header class="page-header"><h1>2026 蝴蝶蘭大貨預購</h1></header>
       
-      <label>預計到港日期 *</label>
-      <select id="arrivalDate">
-        <option value="" disabled selected>請選擇到港日期</option>
-        <option value="2/2">2 月 2 日</option>
-        <option value="2/9">2 月 9 日</option>
-      </select>
+      <section class="highlight-box">
+        <div class="icon">🌸</div>
+        <div class="content">
+          <p><strong>價格已含空運費。</strong> 到貨後請至新蒲崗自取或協助叫 Lalamove。</p>
+        </div>
+      </section>
 
-      <label>訂購者姓名 *</label>
-      <input id="customerName" type="text" placeholder="您的真實姓名" />
+      <section class="section">
+        <h2>Step 1：選擇品項</h2>
+        <div id="products-container" class="products-container"><div class="loading">載入中⋯</div></div>
+      </section>
 
-      <label>Whatsapp 號碼 *</label>
-      <input id="customerWhatsapp" type="tel" placeholder="聯絡電話" />
+      <section class="section">
+        <h2>Step 2：訂購資料</h2>
+        <label>預計到港日期 *</label>
+        <select id="arrivalDate">
+          <option value="" disabled selected>請選擇到港日期</option>
+          <option value="2/2">2 月 2 日</option>
+          <option value="2/9">2 月 9 日</option>
+        </select>
+        <label>姓名 *</label><input id="customerName" type="text" />
+        <label>Whatsapp *</label><input id="customerWhatsapp" type="tel" />
+        <label>花店名稱</label><input id="shopName" type="text" />
+        <label>Instagram ID</label><input id="shopInstagram" type="text" />
+      </section>
+    </div>
 
-      <label>花店名稱</label>
-      <input id="shopName" type="text" placeholder="選填" />
-
-      <label>花店 Instagram ID</label>
-      <input id="shopInstagram" type="text" placeholder="選填" />
+    <section id="success-screen" class="section hidden">
+      <div class="success-box">
+        <div class="success-icon">✅</div>
+        <h2>預購成功！</h2>
+        <p>請截圖下方明細留存：</p>
+        <div id="order-summary-details" class="summary-details"></div>
+        <a id="wa-confirm-btn" href="#" target="_blank" class="wa-button">透過 Whatsapp 確認訂單</a>
+        <button onclick="window.location.reload()" class="reload-btn">返回重新填寫</button>
+      </div>
     </section>
   </main>
 
   <div id="cartBar" class="cart-bar">
-    <div class="cart-left">
-      <div id="cartPreview" class="cart-preview">尚未選購任何品項</div>
-      <div id="itemCount" class="cart-count">(0 項)</div>
-    </div>
+    <div class="cart-left"><div id="cartPreview">尚未選購</div></div>
     <div class="cart-right">
       <div id="totalAmount" class="cart-total">HKD$0</div>
-      <button id="submitBtn" class="cart-submit-btn">送出預購單</button>
+      <button id="submitBtn" class="cart-submit-btn">送出訂單</button>
     </div>
   </div>
 
@@ -77,12 +70,8 @@
 
   <div id="lightbox" class="lightbox hidden">
     <div class="lightbox-backdrop" data-role="close-lightbox"></div>
-    <div class="lightbox-inner">
-      <img id="lightboxImg" src="" />
-      <button class="lightbox-close" data-role="close-lightbox">✕</button>
-    </div>
+    <div class="lightbox-inner"><img id="lightboxImg" src="" /><button class="lightbox-close" data-role="close-lightbox">✕</button></div>
   </div>
-
   <script src="app.js"></script>
 </body>
 </html>
