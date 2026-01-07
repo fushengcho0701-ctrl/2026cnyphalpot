@@ -95,7 +95,7 @@ function showSuccessScreen(payload) {
     <hr/>${itemsHtml}`;
 
   const waMsg = `您好 Lisa，我已下單大貨預購：\n姓名：${payload.customerName}\n到港日：${payload.arrivalDate}\n總計：HKD$${payload.total}`;
-  document.getElementById("wa-confirm-btn").href = `https://wa.me/852XXXXXXXX?text=${encodeURIComponent(waMsg)}`; //更換成Lisa號碼
+  document.getElementById("wa-confirm-btn").href = `https://wa.me/886937212356?text=${encodeURIComponent(waMsg)}`; //更換成Lisa號碼
   window.scrollTo(0,0);
 }
 
