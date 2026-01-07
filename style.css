@@ -302,3 +302,9 @@ input {
   color: white;
   cursor: pointer;
 }
+.hidden { display: none !important; }
+.success-box { background: white; padding: 25px; border-radius: 15px; text-align: center; }
+.summary-details { text-align: left; background: #f4f4f4; padding: 15px; border-radius: 10px; margin: 15px 0; }
+.summary-item { display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 5px 0; font-size: 0.9rem; }
+.wa-button { display: block; background: #25D366; color: white; padding: 12px; border-radius: 10px; text-decoration: none; font-weight: bold; margin-top: 10px; }
+.reload-btn { background: none; border: none; color: #888; text-decoration: underline; margin-top: 15px; }
