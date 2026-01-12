@@ -15,29 +15,37 @@
 <body>
   <div id="inapp-warning" class="inapp-warning hidden">⚠️ 建議在外部瀏覽器開啟以確保正常運作</div>
 
-<section class="highlight-box">
-      <div class="icon">📋</div>
-      <div class="content">
-        <h3 style="margin-top: 0; color: #567b18;">訂購須知</h3>
-        <ol style="padding-left: 20px; margin: 0;">
-          <li>價格已含空運費</li>
-          <li class="important-note">
-            <strong>新年大貨以 24 盆的倍數作為下單單位，每箱 24 盆最多可選 4 色</strong>
-          </li>
-          <li>到貨後請至 Day6 Stuidio (地址：新蒲崗振發工廠大廈6樓B2室) 自取或請 Simon 協助叫 Lalamove。</li>
-          <li>2026/1/23 收單，收單後則不接受修改及提交新訂單</li>
-          <li>
-            <strong>到港時間：</strong><br/>
-            - 第一次到港日 2026/2/2 （若未達出貨數量則順延至第二次到港日）<br/>
-            - 第二次到港日 2026/2/9
-          </li>
-        </ol>
-      </div>
-    </section>
+  <main class="page">
+    <div id="main-content">
+      <header class="page-header">
+        <h1>2026 農曆新年蝴蝶蘭大貨訂購</h1>
+      </header>
+      
+      <section class="highlight-box">
+        <div class="icon">📋</div>
+        <div class="content">
+          <h3 style="margin-top: 0; color: #567b18;">訂購須知</h3>
+          <ol style="padding-left: 20px; margin: 0;">
+            <li>價格已含空運費</li>
+            <li class="important-note">
+              <strong>新年大貨以 24 盆的倍數作為下單單位，每箱 24 盆最多可選 4 色</strong>
+            </li>
+            <li>到貨後請至 Day6 Stuidio (地址：新蒲崗振發工廠大廈6樓B2室) 自取或請 Simon 協助叫 Lalamove。</li>
+            <li>2026/1/23 收單，收單後則不接受修改及提交新訂單</li>
+            <li>
+              <strong>到港時間：</strong><br/>
+              - 第一次到港日 2026/2/2 （若未達出貨數量則順延至第二次到港日）<br/>
+              - 第二次到港日 2026/2/9
+            </li>
+          </ol>
+        </div>
+      </section>
 
       <section class="section">
         <h2>Step 1：選擇品項</h2>
-        <div id="products-container" class="products-container"><div class="loading">載入中⋯</div></div>
+        <div id="products-container" class="products-container">
+          <div class="loading">載入中⋯</div>
+        </div>
       </section>
 
       <section class="section">
@@ -48,10 +56,10 @@
           <option value="2/2">2 月 2 日</option>
           <option value="2/9">2 月 9 日</option>
         </select>
-        <label>姓名 *</label><input id="customerName" type="text" />
-        <label>Whatsapp *</label><input id="customerWhatsapp" type="tel" />
-        <label>花店名稱</label><input id="shopName" type="text" />
-        <label>Instagram ID</label><input id="shopInstagram" type="text" />
+        <label>姓名 *</label><input id="customerName" type="text" placeholder="您的真實姓名" />
+        <label>Whatsapp *</label><input id="customerWhatsapp" type="tel" placeholder="例：91234567" />
+        <label>花店名稱</label><input id="shopName" type="text" placeholder="選填" />
+        <label>Instagram ID</label><input id="shopInstagram" type="text" placeholder="選填" />
       </section>
     </div>
 
@@ -81,6 +89,7 @@
     <div class="lightbox-backdrop" data-role="close-lightbox"></div>
     <div class="lightbox-inner"><img id="lightboxImg" src="" /><button class="lightbox-close" data-role="close-lightbox">✕</button></div>
   </div>
+  
   <script src="app.js"></script>
 </body>
 </html>
